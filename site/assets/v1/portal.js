@@ -17,7 +17,7 @@
       disclaimer: "Личен проект, не е официален продукт на сертифициран доставчик.", about: "За портала",
       green: "Свежо", yellow: "Закъснява", red: "Старо", gray: "Чернова", loading: "Зареждане…", nodata: "Няма данни",
       updated: "Обновено", ago: "преди", min: "мин", h: "ч", d: "дни", every: "на всеки", daily: "веднъж дневно в",
-      next: "следващо около", gated: "Страницата има парола.", noEmbed: "Проектът още няма страница.",
+      next: "следващо около", gated: "Страницата има парола.", live: "при всяко отваряне", liveNote: "Изгледът се смята в браузъра; свежестта е на летищната таблица.", noEmbed: "Проектът още няма страница.",
       noEmbedSub: "Засега се публикуват само данни. Файловете са в подробностите за проекта.", fromFallback: "без manifest.json, времето е от",
       notConfirmed: "не е потвърдено"
     },
@@ -30,13 +30,13 @@
       disclaimer: "Personal project, not an official product of a certified provider.", about: "About",
       green: "Fresh", yellow: "Late", red: "Stale", gray: "Draft", loading: "Loading…", nodata: "No data",
       updated: "Updated", ago: "", min: "min", h: "h", d: "days", every: "every", daily: "once a day at",
-      next: "next around", gated: "This page has a password.", noEmbed: "This project has no page yet.",
+      next: "next around", gated: "This page has a password.", live: "on every opening", liveNote: "This view is computed in the browser; freshness is that of the airport table.", noEmbed: "This project has no page yet.",
       noEmbedSub: "Only data is published for now. The files are listed in the project details.", fromFallback: "no manifest.json, time taken from",
       notConfirmed: "not confirmed"
     }
   };
 
-  var state = { lang: "bg", projects: [], info: {}, sel: null, embedded: null };
+  var state = { lang: "bg", projects: [], info: {}, sel: null, view: null, embedded: null };
 
   function t(k) { return (I18N[state.lang] || I18N.bg)[k] || k; }
   function loc(v) { return v && typeof v === "object" ? (v[state.lang] || v.bg || "") : (v || ""); }
@@ -71,7 +71,8 @@
     else s = Math.round(min / 1440) + " " + t("d");
     return state.lang === "bg" ? t("ago") + " " + s : s + " ago";
   }
-  function fmtCadence(p) {
+  function fmtCadence(p, v) {
+    if (v && v.live) return t("live");
     if (p.daily_at_utc) return t("daily") + " " + p.daily_at_utc + "Z";
     var c = p.cadence_min, s = c < 60 ? c + " " + t("min") : (c / 60) + " " + t("h");
     return t("every") + " " + s + (p.cadence_confirmed === false ? " (" + t("notConfirmed") + ")" : "");
@@ -159,17 +160,21 @@
     var p = current();
     if (!p) return;
     document.getElementById("cur-name").textContent = loc(p.name);
-    document.getElementById("cur-short").textContent = loc(p.short);
+    var v = curView(p);
+    document.getElementById("cur-short").textContent = loc((v || p).short);
     var open = document.getElementById("cur-open");
-    open.href = abs(p.embed || p.url);   // the same page as in the frame, not the project root
+    // the same page as in the frame, not the project root
+    open.href = v ? viewUrl(p, v) : abs(p.embed || p.url);
     if (state.embedded === p.id + state.lang) return;   // keep the iframe, do not reload it
     state.embedded = p.id + state.lang;
     var body = document.getElementById("stage-body");
     body.textContent = "";
     if (p.embed) {
-      var src = abs(p.embed);
+      var src = v ? viewUrl(p, v) : abs(p.embed);
       src += (src.indexOf("?") < 0 ? "?" : "&") + "embed=1&lang=" + state.lang;
-      body.appendChild(el("iframe", { src: src, title: loc(p.name), loading: "lazy", referrerpolicy: "same-origin" }));
+      var fr = el("iframe", { src: src, title: loc(p.name), loading: "lazy", referrerpolicy: "same-origin" });
+      fr.addEventListener("load", function () { onFrameLoad(p, fr); });
+      body.appendChild(fr);
     } else {
       body.appendChild(el("div", { class: "placeholder" }, [
         el("h2", { text: t("noEmbed") }),
@@ -188,16 +193,18 @@
     var lines = [el("b", { text: t(f === "wait" ? "loading" : f) }), el("span", { text: statusLine(p, info, f, now) })];
     if (info && info.via) lines.push(el("span", { class: "small", text: t("fromFallback") + " " + info.via }));
     if (p.gated) lines.push(el("span", { class: "small", text: t("gated") }));
+    var v = curView(p);
+    if (v && v.live) lines.push(el("span", { class: "small", text: t("liveNote") }));
     st.appendChild(el("span", { class: "mark " + f, "aria-hidden": "true" }));
     st.appendChild(el("span", { class: "status-text" }, lines));
-    document.getElementById("cur-desc").textContent = loc(p.description);
-    document.getElementById("cur-cadence").textContent = fmtCadence(p);
+    document.getElementById("cur-desc").textContent = loc((v || p).description);
+    document.getElementById("cur-cadence").textContent = fmtCadence(p, v);
     var run = info && info.run ? (parseTime(info.run) ? fmtDate(parseTime(info.run)) : String(info.run)) : "—";
     document.getElementById("cur-run").textContent = run;
-    document.getElementById("cur-sources").textContent = loc(p.sources);
+    document.getElementById("cur-sources").textContent = loc((v || p).sources);
     var files = document.getElementById("cur-files");
     files.textContent = "";
-    (p.files || []).forEach(function (fp) {
+    ((v && v.files) || p.files || []).forEach(function (fp) {
       files.appendChild(el("a", { href: abs(fp), target: "_blank", rel: "noopener", text: fp.split("/").slice(2).join("/") }));
     });
     var repo = document.getElementById("cur-repo");
@@ -227,9 +234,38 @@
     return state.projects[0];
   }
 
+  // Views: other pages of one project (e.g. airport-nowcast route.html), listed in registry.json.
+  function curView(p) {
+    var vs = (p && p.views) || [];
+    for (var i = 0; i < vs.length; i++) if (vs[i].id === state.view) return vs[i];
+    return null;
+  }
+
+  function viewUrl(p, v) { return abs(p.embed || p.url).replace(/[^/]*$/, "") + v.path; }
+
+  function writeHash() {
+    var h = "#p=" + encodeURIComponent(state.sel) + (state.view ? "&v=" + encodeURIComponent(state.view) : "");
+    try { history.replaceState(null, "", h); } catch (e) { /* ignore */ }
+  }
+
+  // Same origin, so the portal can see which page the frame shows after the user navigates inside it.
+  function onFrameLoad(p, fr) {
+    var path;
+    try { path = fr.contentWindow.location.pathname; } catch (e) { return; }
+    var found = null;
+    (p.views || []).forEach(function (v) {
+      if (path.slice(-v.path.length) === v.path) found = v.id;
+    });
+    if (found === state.view || p.id !== state.sel) return;
+    state.view = found;
+    writeHash();
+    render();
+  }
+
   function select(id) {
+    if (id !== state.sel) state.view = null;
     state.sel = id;
-    try { history.replaceState(null, "", "#p=" + encodeURIComponent(id)); } catch (e) { /* ignore */ }
+    writeHash();
     render();
     showChip(true);
   }
@@ -277,8 +313,9 @@
     }
     fetch(bust("registry.json"), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (reg) {
       state.projects = reg.projects || [];
-      var m = /p=([^&]+)/.exec(window.location.hash);
+      var m = /p=([^&]+)/.exec(window.location.hash), mv = /v=([^&]+)/.exec(window.location.hash);
       state.sel = m ? decodeURIComponent(m[1]) : (state.projects[0] && state.projects[0].id);
+      state.view = mv ? decodeURIComponent(mv[1]) : null;
       render();
       showChip(false);
       var all = function () { state.projects.forEach(load); };

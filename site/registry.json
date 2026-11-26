@@ -40,7 +40,21 @@
       "sources": {"bg": "METAR (AWC); ICON-EU (DWD); IFS, GFS, ALADIN (Open-Meteo)", "en": "METAR (AWC); ICON-EU (DWD); IFS, GFS, ALADIN (Open-Meteo)"},
       "manifest": "/airport-nowcast/manifest.json",
       "fallback": {"path": "/airport-nowcast/table.json", "time": "created"},
-      "files": ["/airport-nowcast/table.json"]
+      "files": ["/airport-nowcast/table.json"],
+      "views": [
+        {
+          "id": "route",
+          "path": "route.html",
+          "short": {"bg": "Прогноза по маршрут", "en": "Route forecast"},
+          "description": {
+            "bg": "Прогноза по маршрут между петте летища: вятър, облак и обледяване на полетното ниво, разрез и релеф по трасето. Смята се в браузъра при отваряне; краищата са от летищната таблица. Не е GAMET и не замества официалната информация.",
+            "en": "Route forecast between the five airports: wind, cloud and icing at flight level, cross-section and terrain along the track. Computed in the browser on opening; the ends come from the airport table. Not a GAMET and does not replace official information."
+          },
+          "sources": {"bg": "ICON-EU по нива (Open-Meteo, при отваряне); летищната таблица (table.json)", "en": "ICON-EU pressure levels (Open-Meteo, on opening); the airport table (table.json)"},
+          "live": true,
+          "files": ["/airport-nowcast/route.html", "/airport-nowcast/table.json"]
+        }
+      ]
     },
     {
       "id": "multiconvect",
