@@ -161,7 +161,7 @@
     document.getElementById("cur-name").textContent = loc(p.name);
     document.getElementById("cur-short").textContent = loc(p.short);
     var open = document.getElementById("cur-open");
-    open.href = abs(p.url);
+    open.href = abs(p.embed || p.url);   // the same page as in the frame, not the project root
     if (state.embedded === p.id + state.lang) return;   // keep the iframe, do not reload it
     state.embedded = p.id + state.lang;
     var body = document.getElementById("stage-body");
