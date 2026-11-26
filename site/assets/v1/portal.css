@@ -102,6 +102,10 @@ a { color: var(--link); }
 .facts dt { color: var(--muted); }
 .facts dd { margin: 0; overflow-wrap: anywhere; }
 .facts dd a { display: block; }
+.prod { display: grid; grid-template-columns: 14px 1fr; column-gap: 6px; align-items: center; padding: 2px 0 6px; }
+.facts dd .prod a { display: inline; }
+.prod .mark { transform: scale(.8); }
+.prod-age { grid-column: 2; color: var(--muted); font-family: var(--font); font-size: 12px; }
 .legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: var(--text-2); }
 .legend li { display: flex; align-items: center; gap: 8px; }
 .more { display: flex; flex-direction: column; gap: 12px; }

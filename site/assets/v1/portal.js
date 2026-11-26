@@ -19,7 +19,7 @@
       green: "Свежо", yellow: "Закъснява", red: "Старо", gray: "Чернова", loading: "Зареждане…", nodata: "Няма данни",
       updated: "Обновено", ago: "преди", min: "мин", h: "ч", d: "дни", every: "на всеки", daily: "веднъж дневно в",
       next: "следващо около", gated: "Страницата има парола.", live: "при всяко отваряне", liveNote: "Изгледът се смята в браузъра; свежестта е на летищната таблица.", noEmbed: "Проектът още няма страница.",
-      noEmbedSub: "Засега се публикуват само данни. Файловете са в подробностите за проекта.", fromFallback: "без manifest.json, времето е от",
+      noEmbedSub: "Засега се публикуват само данни. Файловете са в подробностите за проекта.", fromFallback: "без manifest.json, времето е от", dataTime: "данни за",
       notConfirmed: "не е потвърдено"
     },
     en: {
@@ -32,7 +32,7 @@
       green: "Fresh", yellow: "Late", red: "Stale", gray: "Draft", loading: "Loading…", nodata: "No data",
       updated: "Updated", ago: "", min: "min", h: "h", d: "days", every: "every", daily: "once a day at",
       next: "next around", gated: "This page has a password.", live: "on every opening", liveNote: "This view is computed in the browser; freshness is that of the airport table.", noEmbed: "This project has no page yet.",
-      noEmbedSub: "Only data is published for now. The files are listed in the project details.", fromFallback: "no manifest.json, time taken from",
+      noEmbedSub: "Only data is published for now. The files are listed in the project details.", fromFallback: "no manifest.json, time taken from", dataTime: "data for",
       notConfirmed: "not confirmed"
     }
   };
@@ -110,13 +110,20 @@
     }
     function fromObj(obj, timeKey, runKey, srcLabel) {
       var g = parseTime(obj[timeKey]);
-      var run = runKey ? obj[runKey] : null;
-      if (run && typeof run === "object") run = Object.keys(run).map(function (k) { return k + " " + run[k]; }).join(", ");
+      var run = runKey ? obj[runKey] : null;   // string, {model: time} or null (docs/header.md)
       return { loading: false, generated: g, run: run || null, via: srcLabel };
     }
     var manifest = p.manifest ? getJson(p.manifest).then(function (m) {
       var r = fromObj(m, "generated_at", "run", null);
       if (!r.generated) throw new Error("no generated_at");
+      r.products = (m.products || []).filter(function (x) { return x && x.path; }).map(function (x) {
+        return {
+          id: x.id || x.path, path: x.path,
+          generated: parseTime(x.generated_at) || r.generated,
+          dataTime: parseTime(x.data_time),
+          cadence: x.cadence_min || m.cadence_min || p.cadence_min
+        };
+      });
       return r;
     }) : Promise.reject(new Error("no manifest"));
     return manifest.catch(function () {
@@ -133,6 +140,28 @@
         ? Object.assign({}, prev, { loading: false, fails: fails })
         : { loading: false, generated: null, fails: fails };
     }).then(render);
+  }
+
+  // "2026-11-26T06:00:00Z" or {"icon_eu": "…Z", "ifs": "…Z"} → "26.11 06:00Z" / "ICON-EU 26.11 06:00Z, IFS …"
+  function fmtRun(run) {
+    if (!run) return "—";
+    function one(v) { var d = parseTime(v); return d ? fmtDate(d) : String(v); }
+    if (typeof run === "object") {
+      return Object.keys(run).map(function (k) { return k.toUpperCase().replace(/_/g, "-") + " " + one(run[k]); }).join(", ");
+    }
+    return one(run);
+  }
+
+  // One line per product from manifest.json: mark, file link, age. Same thresholds as the project.
+  function productRow(p, x, now) {
+    var pp = { status: p.status, cadence_min: x.cadence, daily_at_utc: x.cadence === p.cadence_min ? p.daily_at_utc : null };
+    var f = freshness(pp, { generated: x.generated }, now);
+    var title = x.dataTime ? t("dataTime") + " " + fmtDate(x.dataTime) : "";
+    return el("span", { class: "prod", title: title }, [
+      el("span", { class: "mark " + f, role: "img", "aria-label": t(f) }),
+      el("a", { href: abs(p.url).replace(/[^/]*$/, "") + x.path, target: "_blank", rel: "noopener", text: x.path }),
+      el("span", { class: "prod-age", text: x.generated ? fmtAge((now - x.generated) / 60000) : t("nodata") })
+    ]);
   }
 
   function statusLine(p, info, f, now) {
@@ -206,12 +235,13 @@
     st.appendChild(el("span", { class: "status-text" }, lines));
     document.getElementById("cur-desc").textContent = loc((v || p).description);
     document.getElementById("cur-cadence").textContent = fmtCadence(p, v);
-    var run = info && info.run ? (parseTime(info.run) ? fmtDate(parseTime(info.run)) : String(info.run)) : "—";
-    document.getElementById("cur-run").textContent = run;
+    document.getElementById("cur-run").textContent = fmtRun(info && info.run);
     document.getElementById("cur-sources").textContent = loc((v || p).sources);
     var files = document.getElementById("cur-files");
     files.textContent = "";
-    ((v && v.files) || p.files || []).forEach(function (fp) {
+    if (!v && info && info.products && info.products.length) {
+      info.products.forEach(function (x) { files.appendChild(productRow(p, x, now)); });
+    } else ((v && v.files) || p.files || []).forEach(function (fp) {
       files.appendChild(el("a", { href: abs(fp), target: "_blank", rel: "noopener", text: fp.split("/").slice(2).join("/") }));
     });
     var repo = document.getElementById("cur-repo");
