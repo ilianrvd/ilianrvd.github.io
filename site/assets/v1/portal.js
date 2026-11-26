@@ -5,6 +5,7 @@
 
   var GRACE_MIN = 15;            // Pages cache (600 s) + run/deploy time
   var REFRESH_MS = 60 * 1000;    // re-read manifests every minute
+  var MAX_FAILS = 3;              // consecutive failed reads before "No data" (keeps the last good time meanwhile)
   var LS_LANG = "portal.lang";   // same origin for all projects: prefix every key
 
   var I18N = {
@@ -123,8 +124,14 @@
       return getJson(p.fallback.path).then(function (o) {
         return fromObj(o, p.fallback.time, p.fallback.run, p.fallback.path.split("/").pop());
       });
-    }).then(function (r) { state.info[p.id] = r; }, function () {
-      state.info[p.id] = { loading: false, generated: null };
+    }).then(function (r) { r.fails = 0; state.info[p.id] = r; }, function () {
+      // Неуспешно четене (напр. докато Pages качва нова версия — файлът за миг дава 404):
+      // пази се последното добро време; „Няма данни“ едва след MAX_FAILS поредни неуспеха.
+      var prev = state.info[p.id] || {};
+      var fails = (prev.fails || 0) + 1;
+      state.info[p.id] = (prev.generated && fails < MAX_FAILS)
+        ? Object.assign({}, prev, { loading: false, fails: fails })
+        : { loading: false, generated: null, fails: fails };
     }).then(render);
   }
 
