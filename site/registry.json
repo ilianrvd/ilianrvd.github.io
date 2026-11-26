@@ -99,21 +99,21 @@
     {
       "id": "fognowcast",
       "name": {"bg": "fogNowcast", "en": "fogNowcast"},
-      "short": {"bg": "Карта на мъглата, пътища, маршрут", "en": "Fog map, roads, route"},
+      "short": {"bg": "Карта на пътните станции на НТУ", "en": "Map of the NTU road stations"},
       "description": {
-        "bg": "Коригирана карта на мъглата 0–12 ч. Засега се публикуват само наблюденията на пътните станции на НТУ.",
-        "en": "Corrected 0–12 h fog map. For now only the road weather station observations are published."
+        "bg": "Карта на пътните станции на НТУ, само наблюдения. Предстои коригирана прогноза за мъгла по точки 0–6 ч.",
+        "en": "Map of the NTU road weather stations, observations only. A corrected 0–6 h fog point forecast is coming."
       },
       "url": "/fogNowcast/",
       "repo": "https://github.com/ilianrvd/fogNowcast",
-      "embed": null,
+      "embed": "/fogNowcast/",
       "gated": false,
-      "status": "draft",
+      "status": "experimental",
       "cadence_min": 15,
       "sources": {"bg": "Пътни станции на НТУ (bgtoll.bg)", "en": "Road weather stations (bgtoll.bg)"},
       "manifest": "/fogNowcast/manifest.json",
       "fallback": {"path": "/fogNowcast/obs/ntu_latest.json", "time": "generated_at"},
-      "files": ["/fogNowcast/obs/ntu_latest.json"]
+      "files": ["/fogNowcast/obs/ntu_latest.json", "/fogNowcast/obs/ntu_recent.json", "/fogNowcast/obs/ntu_fallback_latest.json"]
     }
   ]
 }
