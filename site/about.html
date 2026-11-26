@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>За портала · Nowcasting България</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/v1/portal.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="./"><span><span class="brand-title">Nowcasting България</span><span class="brand-sub">← към портала</span></span></a>
+  </div>
+</header>
+<main class="prose">
+  <h1>За портала</h1>
+  <p><strong>Личен проект, не е официален продукт на сертифициран доставчик.</strong> Прогнозите и наблюденията тук са експериментални. Не са предназначени за оперативна употреба.</p>
+  <p>Порталът е общ вход към пет отделни проекта. Всеки проект тегли своите източници и публикува своите файлове в GitHub Pages. Порталът сам не тегли данни: той чете файловете на проектите в браузъра и показва колко са пресни.</p>
+
+  <h2>Свежест</h2>
+  <table>
+    <thead><tr><th>Знак</th><th>Условие</th></tr></thead>
+    <tbody>
+      <tr><td><span class="mark green"></span> свежо</td><td>възрастта е до cadence + 15 мин</td></tr>
+      <tr><td><span class="mark yellow"></span> закъснява</td><td>възрастта е до 2 × cadence + 15 мин</td></tr>
+      <tr><td><span class="mark red"></span> старо</td><td>по-старо, или файлът не се чете</td></tr>
+      <tr><td><span class="mark gray"></span> чернова</td><td>проектът още не е в работа</td></tr>
+    </tbody>
+  </table>
+  <p>Възрастта се смята от времето, записано във файла (<code>generated_at</code>), а не от сървъра. GitHub Pages пази копие до 10 мин, затова прагът има 15 мин резерв. При дневен рън (fog-model-bulgaria, 18:15 UTC) прагът е от очаквания следващ рън.</p>
+
+  <h2>Всички времена са в UTC</h2>
+  <p>Форматът е ISO 8601. Вятърът е в kt навсякъде и се превръща само при показване.</p>
+
+  <h2>English</h2>
+  <p>Personal project, not an official product of a certified provider. Forecasts and observations here are experimental and not for operational use. All times are UTC.</p>
+
+  <h2>Контакт</h2>
+  <p>Илиан Манафов, <a href="mailto:ilianm@mail.bg">ilianm@mail.bg</a></p>
+</main>
+<footer class="foot"><div class="foot-in"><span>Личен проект, не е официален продукт на сертифициран доставчик.</span><span>Илиан Манафов · <a href="mailto:ilianm@mail.bg">ilianm@mail.bg</a></span></div></footer>
+</body>
+</html>

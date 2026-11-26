@@ -1,0 +1,105 @@
+{
+  "schema": "portal.registry/1.0",
+  "generated_at": "2026-11-26T04:00:00Z",
+  "source": "ilianrvd.github.io",
+  "base": "https://ilianrvd.github.io",
+  "projects": [
+    {
+      "id": "nowcasting-public",
+      "name": {"bg": "nowcasting-public", "en": "nowcasting-public"},
+      "short": {"bg": "Радар, мълнии, конвекция, 0–6 ч", "en": "Radar, lightning, convection, 0–6 h"},
+      "description": {
+        "bg": "Композит от радарите на Румъния и ИАБГ, мълнии от MTG LI, екстраполация до 60 мин и смесване с ICON-EU до 6 ч.",
+        "en": "Composite of Romanian and IABG radars, MTG LI lightning, extrapolation to 60 min, blended with ICON-EU to 6 h."
+      },
+      "url": "/nowcasting-public/",
+      "repo": "https://github.com/ilianrvd/nowcasting-public",
+      "embed": "/nowcasting-public/embed/",
+      "gated": true,
+      "status": "experimental",
+      "cadence_min": 10,
+      "sources": {"bg": "Радари ANM, ИАБГ, TR34; EUMETSAT; DWD", "en": "Radars ANM, IABG, TR34; EUMETSAT; DWD"},
+      "manifest": "/nowcasting-public/manifest.json",
+      "fallback": {"path": "/nowcasting-public/embed/data/frames.json", "time": "generated_utc"},
+      "files": ["/nowcasting-public/embed/data/airports.json", "/nowcasting-public/embed/data/frames.json"]
+    },
+    {
+      "id": "airport-nowcast",
+      "name": {"bg": "airport-nowcast", "en": "airport-nowcast"},
+      "short": {"bg": "Пет летища, таблица 0–12 ч", "en": "Five airports, 0–12 h table"},
+      "description": {
+        "bg": "Таблица 0–12 ч за LBSF, LBBG, LBWN, LBPD и LBGO. Тръгва от METAR и преминава към моделите. Не е TAF.",
+        "en": "0–12 h table for LBSF, LBBG, LBWN, LBPD and LBGO. Starts from METAR and hands over to the models. Not a TAF."
+      },
+      "url": "/airport-nowcast/",
+      "repo": "https://github.com/ilianrvd/airport-nowcast",
+      "embed": "/airport-nowcast/",
+      "gated": false,
+      "status": "experimental",
+      "cadence_min": 30,
+      "sources": {"bg": "METAR (AWC); ICON-EU (DWD); IFS, GFS, ALADIN (Open-Meteo)", "en": "METAR (AWC); ICON-EU (DWD); IFS, GFS, ALADIN (Open-Meteo)"},
+      "manifest": "/airport-nowcast/manifest.json",
+      "fallback": {"path": "/airport-nowcast/table.json", "time": "created"},
+      "files": ["/airport-nowcast/table.json"]
+    },
+    {
+      "id": "multiconvect",
+      "name": {"bg": "MultiConvect", "en": "MultiConvect"},
+      "short": {"bg": "Конвекция от ICON-EU, GFS, IFS", "en": "Convection from ICON-EU, GFS, IFS"},
+      "description": {
+        "bg": "ICON-EU е водещ модел, GFS и IFS потвърждават. HIGH означава съгласие на трите модела.",
+        "en": "ICON-EU leads, GFS and IFS confirm. HIGH means all three agree."
+      },
+      "url": "/multiconvect/",
+      "repo": "https://github.com/ilianrvd/multiconvect",
+      "embed": "/multiconvect/",
+      "gated": false,
+      "status": "experimental",
+      "cadence_min": 360,
+      "cadence_confirmed": false,
+      "sources": {"bg": "ICON-EU (DWD), GFS (NOMADS), IFS (ECMWF Open Data)", "en": "ICON-EU (DWD), GFS (NOMADS), IFS (ECMWF Open Data)"},
+      "manifest": "/multiconvect/manifest.json",
+      "fallback": {"path": "/multiconvect/airports.json", "time": "created_utc", "run": "run_init_utc"},
+      "files": ["/multiconvect/airports.json"]
+    },
+    {
+      "id": "fog-model-bulgaria",
+      "name": {"bg": "fog-model-bulgaria", "en": "fog-model-bulgaria"},
+      "short": {"bg": "1D модел на мъгла, нощта", "en": "1D fog model, overnight"},
+      "description": {
+        "bg": "Едномерен модел на мъгла за петте летища, от 18 до 07 UTC. Експериментален.",
+        "en": "One-dimensional fog model for the five airports, 18 to 07 UTC. Experimental."
+      },
+      "url": "/fog-model-bulgaria/",
+      "repo": "https://github.com/ilianrvd/fog-model-bulgaria",
+      "embed": "/fog-model-bulgaria/",
+      "gated": true,
+      "status": "experimental",
+      "cadence_min": 1440,
+      "daily_at_utc": "18:15",
+      "sources": {"bg": "METAR (AWC); ICON-EU (Open-Meteo)", "en": "METAR (AWC); ICON-EU (Open-Meteo)"},
+      "manifest": "/fog-model-bulgaria/manifest.json",
+      "fallback": {"path": "/fog-model-bulgaria/data/fog.json", "time": "created", "run": "init"},
+      "files": ["/fog-model-bulgaria/data/fog.json"]
+    },
+    {
+      "id": "fognowcast",
+      "name": {"bg": "fogNowcast", "en": "fogNowcast"},
+      "short": {"bg": "Карта на мъглата, пътища, маршрут", "en": "Fog map, roads, route"},
+      "description": {
+        "bg": "Коригирана карта на мъглата 0–12 ч. Засега се публикуват само наблюденията на пътните станции на НТУ.",
+        "en": "Corrected 0–12 h fog map. For now only the road weather station observations are published."
+      },
+      "url": "/fogNowcast/",
+      "repo": "https://github.com/ilianrvd/fogNowcast",
+      "embed": null,
+      "gated": false,
+      "status": "draft",
+      "cadence_min": 15,
+      "sources": {"bg": "Пътни станции на НТУ (bgtoll.bg)", "en": "Road weather stations (bgtoll.bg)"},
+      "manifest": "/fogNowcast/manifest.json",
+      "fallback": {"path": "/fogNowcast/obs/ntu_latest.json", "time": "generated_at"},
+      "files": ["/fogNowcast/obs/ntu_latest.json"]
+    }
+  ]
+}

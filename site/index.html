@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nowcasting България</title>
+<meta name="description" content="Общ вход към личните прогностични проекти на Илиан Манафов. Личен проект, не е официален продукт на сертифициран доставчик.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/v1/portal.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="./">
+      <svg width="32" height="32" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="16" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="18" r="9" fill="none" stroke="currentColor" stroke-width="2" opacity="0.6"/><path d="M18 18 L30 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="18" cy="18" r="2.5" fill="currentColor"/></svg>
+      <span>
+        <span class="brand-title" data-i18n="title">Nowcasting България</span>
+        <span class="brand-sub" data-i18n="subtitle">Общ вход към личните прогностични проекти</span>
+      </span>
+    </a>
+    <div class="top-right">
+      <span class="clock mono" id="clock">--:-- UTC</span>
+      <div class="lang" role="group" aria-label="Език / Language">
+        <button type="button" data-lang="bg">БГ</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="layout">
+  <nav class="tiles" aria-labelledby="tiles-h">
+    <h2 id="tiles-h" class="kicker" data-i18n="projects">Проекти</h2>
+    <div id="tiles"></div>
+  </nav>
+
+  <section class="stage" aria-live="polite">
+    <div class="stage-bar">
+      <div>
+        <h1 id="cur-name">…</h1>
+        <span id="cur-short" class="muted"></span>
+      </div>
+      <a id="cur-open" class="btn" href="#" target="_blank" rel="noopener" data-i18n="openNew">Отвори в нов прозорец</a>
+    </div>
+    <div class="stage-body" id="stage-body"></div>
+  </section>
+
+  <aside class="side">
+    <div class="card">
+      <div id="cur-status" class="status"></div>
+      <p id="cur-desc" class="desc"></p>
+      <dl class="facts">
+        <dt data-i18n="cadence">Обновяване</dt><dd id="cur-cadence"></dd>
+        <dt data-i18n="run">Рън</dt><dd id="cur-run" class="mono"></dd>
+        <dt data-i18n="sources">Източници</dt><dd id="cur-sources"></dd>
+        <dt data-i18n="files">Файлове</dt><dd id="cur-files" class="mono small"></dd>
+        <dt data-i18n="code">Код</dt><dd><a id="cur-repo" href="#" target="_blank" rel="noopener">GitHub</a></dd>
+      </dl>
+    </div>
+    <div class="card">
+      <h2 class="card-h" data-i18n="freshTitle">Свежест на данните</h2>
+      <ul class="legend">
+        <li><span class="mark green" aria-hidden="true"></span><span data-i18n="lg1">до cadence + 15 мин</span></li>
+        <li><span class="mark yellow" aria-hidden="true"></span><span data-i18n="lg2">до 2 × cadence + 15 мин</span></li>
+        <li><span class="mark red" aria-hidden="true"></span><span data-i18n="lg3">по-старо или няма данни</span></li>
+        <li><span class="mark gray" aria-hidden="true"></span><span data-i18n="lg4">чернова</span></li>
+      </ul>
+      <p class="small muted" data-i18n="freshNote">Времето се чете от самия файл. Pages пази копие до 10 мин, затова прагът има 15 мин резерв.</p>
+    </div>
+  </aside>
+</main>
+
+<footer class="foot">
+  <div class="foot-in">
+    <span data-i18n="disclaimer">Личен проект, не е официален продукт на сертифициран доставчик.</span>
+    <span>Илиан Манафов · <a href="mailto:ilianm@mail.bg">ilianm@mail.bg</a> · <a href="about.html" data-i18n="about">За портала</a></span>
+  </div>
+</footer>
+
+<script src="assets/v1/portal.js"></script>
+</body>
+</html>

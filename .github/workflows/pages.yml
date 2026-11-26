@@ -1,0 +1,48 @@
+# Publishes site/ to GitHub Pages on every push to main. The portal has no schedule:
+# it reads the projects' files in the browser, so it never goes stale between deploys.
+name: pages
+
+on:
+  push:
+    branches: [main]
+    paths: ["site/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url || steps.deploy2.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check JSON files
+        run: |
+          for f in site/*.json; do python3 -m json.tool "$f" > /dev/null || { echo "invalid JSON: $f"; exit 1; }; done
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      # GitHub sometimes does not see the just-uploaded artifact; one retry, as in the other projects.
+      - id: deploy
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - if: steps.deploy.outcome == 'failure'
+        run: sleep 60
+      - id: deploy2
+        if: steps.deploy.outcome == 'failure'
+        uses: actions/deploy-pages@v4
