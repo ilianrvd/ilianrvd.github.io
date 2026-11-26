@@ -10,8 +10,8 @@
   var I18N = {
     bg: {
       title: "Nowcasting България", subtitle: "Общ вход към личните прогностични проекти",
-      projects: "Проекти", openNew: "Отвори в нов прозорец", cadence: "Обновяване", run: "Рън",
-      sources: "Източници", files: "Файлове", code: "Код", freshTitle: "Свежест на данните",
+      projects: "Проекти", openNew: "Отвори в нов прозорец", openShort: "Отвори ↗", cadence: "Обновяване", run: "Рън",
+      sources: "Източници", files: "Файлове", code: "Код", freshTitle: "Свежест на данните", details: "Подробности",
       lg1: "до cadence + 15 мин", lg2: "до 2 × cadence + 15 мин", lg3: "по-старо или няма данни", lg4: "чернова",
       freshNote: "Времето се чете от самия файл. Pages пази копие до 10 мин, затова прагът има 15 мин резерв.",
       disclaimer: "Личен проект, не е официален продукт на сертифициран доставчик.", about: "За портала",
@@ -23,8 +23,8 @@
     },
     en: {
       title: "Nowcasting Bulgaria", subtitle: "One entry point to personal forecasting projects",
-      projects: "Projects", openNew: "Open in a new window", cadence: "Updates", run: "Run",
-      sources: "Sources", files: "Files", code: "Code", freshTitle: "Data freshness",
+      projects: "Projects", openNew: "Open in a new window", openShort: "Open ↗", cadence: "Updates", run: "Run",
+      sources: "Sources", files: "Files", code: "Code", freshTitle: "Data freshness", details: "Details",
       lg1: "within cadence + 15 min", lg2: "within 2 × cadence + 15 min", lg3: "older, or no data", lg4: "draft",
       freshNote: "The time is read from the file itself. Pages keeps a copy for up to 10 min, so the limits allow 15 min.",
       disclaimer: "Personal project, not an official product of a certified provider.", about: "About",
@@ -231,10 +231,27 @@
     state.sel = id;
     try { history.replaceState(null, "", "#p=" + encodeURIComponent(id)); } catch (e) { /* ignore */ }
     render();
-    if (window.innerWidth < 720) {
-      var st = document.querySelector(".stage");
-      if (st && st.scrollIntoView) st.scrollIntoView({ behavior: "smooth", block: "start" });
+    showChip(true);
+  }
+
+  // phone: keep the selected chip visible in the sliding row
+  function showChip(smooth) {
+    var b = document.querySelector('.tile[aria-pressed="true"]');
+    if (!b || !isPhone()) return;
+    var row = b.parentNode, left = b.offsetLeft - row.offsetLeft, right = left + b.offsetWidth;
+    if (left < row.scrollLeft || right > row.scrollLeft + row.clientWidth) {
+      var x = Math.max(0, left - 16);
+      if (row.scrollTo) row.scrollTo({ left: x, behavior: smooth ? "smooth" : "auto" }); else row.scrollLeft = x;
     }
+  }
+
+  var PHONE = window.matchMedia ? window.matchMedia("(max-width: 720px)") : null;
+  function isPhone() { return !!(PHONE && PHONE.matches); }
+
+  // details are collapsed on phone and always open on wider screens
+  function syncDetails() {
+    var d = document.getElementById("more");
+    if (d) d.open = !isPhone();
   }
 
   function setLang(l) {
@@ -253,11 +270,17 @@
       b.addEventListener("click", function () { setLang(b.getAttribute("data-lang")); });
     });
     renderChrome();
+    syncDetails();
+    if (PHONE) {
+      if (PHONE.addEventListener) PHONE.addEventListener("change", syncDetails);
+      else if (PHONE.addListener) PHONE.addListener(syncDetails);
+    }
     fetch(bust("registry.json"), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (reg) {
       state.projects = reg.projects || [];
       var m = /p=([^&]+)/.exec(window.location.hash);
       state.sel = m ? decodeURIComponent(m[1]) : (state.projects[0] && state.projects[0].id);
       render();
+      showChip(false);
       var all = function () { state.projects.forEach(load); };
       all();
       setInterval(all, REFRESH_MS);

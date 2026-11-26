@@ -42,14 +42,16 @@
         <h1 id="cur-name">…</h1>
         <span id="cur-short" class="muted"></span>
       </div>
-      <a id="cur-open" class="btn" href="#" target="_blank" rel="noopener" data-i18n="openNew">Отвори в нов прозорец</a>
+      <a id="cur-open" class="btn" href="#" target="_blank" rel="noopener"><span class="open-long" data-i18n="openNew">Отвори в нов прозорец</span><span class="open-short" data-i18n="openShort">Отвори ↗</span></a>
     </div>
     <div class="stage-body" id="stage-body"></div>
   </section>
 
   <aside class="side">
+    <div id="cur-status" class="status"></div>
+    <details id="more" class="more" open>
+    <summary data-i18n="details">Подробности</summary>
     <div class="card">
-      <div id="cur-status" class="status"></div>
       <p id="cur-desc" class="desc"></p>
       <dl class="facts">
         <dt data-i18n="cadence">Обновяване</dt><dd id="cur-cadence"></dd>
@@ -69,6 +71,7 @@
       </ul>
       <p class="small muted" data-i18n="freshNote">Времето се чете от самия файл. Pages пази копие до 10 мин, затова прагът има 15 мин резерв.</p>
     </div>
+    </details>
   </aside>
 </main>
 
