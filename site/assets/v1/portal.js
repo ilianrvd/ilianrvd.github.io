@@ -19,7 +19,7 @@
       green: "Свежо", yellow: "Закъснява", red: "Старо", gray: "Чернова", loading: "Зареждане…", nodata: "Няма данни",
       updated: "Обновено", ago: "преди", min: "мин", h: "ч", d: "дни", every: "на всеки", daily: "веднъж дневно в",
       next: "следващо около", gated: "Страницата има парола.", live: "при всяко отваряне", liveNote: "Изгледът се смята в браузъра; свежестта е на летищната таблица.", noEmbed: "Проектът още няма страница.",
-      noEmbedSub: "Засега се публикуват само данни. Файловете са в подробностите за проекта.", fromFallback: "без manifest.json, времето е от", dataTime: "данни за",
+      noEmbedSub: "Засега се публикуват само данни. Файловете са в подробностите за проекта.", fromFallback: "без manifest.json, времето е от", dataTime: "данни за", consumes: "Зависи от", upTo: "до",
       notConfirmed: "не е потвърдено"
     },
     en: {
@@ -32,7 +32,7 @@
       green: "Fresh", yellow: "Late", red: "Stale", gray: "Draft", loading: "Loading…", nodata: "No data",
       updated: "Updated", ago: "", min: "min", h: "h", d: "days", every: "every", daily: "once a day at",
       next: "next around", gated: "This page has a password.", live: "on every opening", liveNote: "This view is computed in the browser; freshness is that of the airport table.", noEmbed: "This project has no page yet.",
-      noEmbedSub: "Only data is published for now. The files are listed in the project details.", fromFallback: "no manifest.json, time taken from", dataTime: "data for",
+      noEmbedSub: "Only data is published for now. The files are listed in the project details.", fromFallback: "no manifest.json, time taken from", dataTime: "data for", consumes: "Depends on", upTo: "up to",
       notConfirmed: "not confirmed"
     }
   };
@@ -116,6 +116,8 @@
     var manifest = p.manifest ? getJson(p.manifest).then(function (m) {
       var r = fromObj(m, "generated_at", "run", null);
       if (!r.generated) throw new Error("no generated_at");
+      r.consumes = (m.consumes || []).filter(function (x) { return x && x.project && x.path; });
+      r.embedMin = m.embed && typeof m.embed === "object" ? (+m.embed.min_height_px || 0) : 0;
       r.products = (m.products || []).filter(function (x) { return x && x.path; }).map(function (x) {
         return {
           id: x.id || x.path, path: x.path,
@@ -244,6 +246,24 @@
     } else ((v && v.files) || p.files || []).forEach(function (fp) {
       files.appendChild(el("a", { href: abs(fp), target: "_blank", rel: "noopener", text: fp.split("/").slice(2).join("/") }));
     });
+    // consumes[] from manifest.json: what the project reads from the others and how old it accepts
+    var cons = info && info.consumes && !v ? info.consumes : [];
+    var cdd = document.getElementById("cur-consumes");
+    cdd.textContent = "";
+    cdd.hidden = document.getElementById("cur-consumes-dt").hidden = !cons.length;
+    cons.forEach(function (x) {
+      var src = null;
+      state.projects.forEach(function (q) { if (q.id === String(x.project).toLowerCase()) src = q; });
+      var base = src ? abs(src.url).replace(/[^/]*$/, "") : abs("/" + x.project + "/");
+      cdd.appendChild(el("span", { class: "prod" }, [
+        el("span", { "aria-hidden": "true", text: "←" }),
+        el("a", { href: base + x.path, target: "_blank", rel: "noopener", text: x.project + "/" + x.path }),
+        el("span", { class: "prod-age", text: x.max_age_min ? t("upTo") + " " + x.max_age_min + " " + t("min") : "" })
+      ]));
+    });
+    // embed.min_height_px from manifest.json; not on phone, where the frame follows the screen
+    var fr = document.querySelector("#stage-body iframe");
+    if (fr) fr.style.minHeight = info && info.embedMin && !isPhone() ? info.embedMin + "px" : "";
     var repo = document.getElementById("cur-repo");
     repo.href = p.repo;
     repo.textContent = p.repo.replace("https://github.com/", "");
