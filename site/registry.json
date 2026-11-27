@@ -9,8 +9,8 @@
       "name": {"bg": "nowcasting-public", "en": "nowcasting-public"},
       "short": {"bg": "Радар, мълнии, конвекция, 0–6 ч", "en": "Radar, lightning, convection, 0–6 h"},
       "description": {
-        "bg": "Композит от радарите на Румъния и ИАБГ, мълнии от MTG LI, екстраполация до 60 мин и смесване с ICON-EU до 6 ч.",
-        "en": "Composite of Romanian and IABG radars, MTG LI lightning, extrapolation to 60 min, blended with ICON-EU to 6 h."
+        "bg": "Композит от радарите на Румъния и ИАБГ (април – октомври), мълнии от MTG LI, екстраполация до 60 мин и смесване с ICON-EU до 6 ч.",
+        "en": "Composite of Romanian and IABG radars (April – October), MTG LI lightning, extrapolation to 60 min, blended with ICON-EU to 6 h."
       },
       "url": "/nowcasting-public/",
       "repo": "https://github.com/ilianrvd/nowcasting-public",
@@ -18,7 +18,7 @@
       "gated": true,
       "status": "experimental",
       "cadence_min": 10,
-      "sources": {"bg": "Радари ANM, ИАБГ, TR34; EUMETSAT; DWD", "en": "Radars ANM, IABG, TR34; EUMETSAT; DWD"},
+      "sources": {"bg": "Радари ANM, ИАБГ (април – октомври), TR34; EUMETSAT; DWD", "en": "Radars ANM, IABG (April – October), TR34; EUMETSAT; DWD"},
       "manifest": "/nowcasting-public/manifest.json",
       "fallback": {"path": "/nowcasting-public/embed/data/frames.json", "time": "generated_utc"},
       "files": ["/nowcasting-public/embed/data/airports.json", "/nowcasting-public/embed/data/frames.json"]
